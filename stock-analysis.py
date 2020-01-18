@@ -11,6 +11,9 @@ from scipy.stats import kurtosis
 import sqlite3
 from sqlite3 import Error
 
+# Data visualization libraries
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Function: create connection to SQLite database
 def createConnection(db_file):
@@ -48,6 +51,9 @@ con.commit()
 # Names of stock tickers in portfolio
 stockPort = ['AAPL', 'AMZN', 'FB', 'GE', 'JPM', 'MSFT', 'TSLA', 'V']
 
+# Create empty dataframe of daily stock returns matrix
+stockRetMat = pd.DataFrame(columns=stockPort)
+
 def stockAnalysis(ticker):
     tickerFile = ticker + '.csv'
     data = pd.read_csv(tickerFile, parse_dates=['Date']) #import historical data in pandas dataframe
@@ -65,6 +71,8 @@ def stockAnalysis(ticker):
     stockSkew = skew(returns)
     stockKurtosis = kurtosis(returns)
 
+    stockRetMat[ticker] = returns
+
     # Stock data to be inserted into database table
     dataEntry = (ticker, avgAnnualReturn, annualVolatility, stockSkew, stockKurtosis)
 
@@ -74,6 +82,20 @@ def stockAnalysis(ticker):
 for stock in stockPort:
     stockData = stockAnalysis(stock)
     sqlInsert(con, stockData)
+
+# Generate a correlation matrix of the stock returns using the Pearson method
+corrMatrix = stockRetMat.corr(method='pearson')
+
+print(corrMatrix)
+
+fig, ax = plt.subplots(figsize=(9, 9))
+sns.heatmap(
+    data = corrMatrix,
+    cmap = 'RdYlGn',
+    annot = True,
+    fmt = '.2f'
+    )
+plt.show()
 
 # Print all rows in the SQLite table
 cursor.execute('SELECT * FROM stocks')

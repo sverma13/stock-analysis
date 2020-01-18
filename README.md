@@ -9,10 +9,10 @@ Instructions:
 Results:
 
 Text output of correlation matrix (heat map)
-###
+![CorrelationMatrix](CorrelationMatrix.png)
 
 Text output of database table "stocks"
-###
+![DatabaseResults](DatabaseResults.png)
 
 Correlation heat map
 ![HeatMap](HeatMap.png)
